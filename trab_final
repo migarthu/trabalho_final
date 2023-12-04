@@ -1,0 +1,176 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Estrutura para representar um veículo
+typedef struct {
+    char proprietario[50];
+    char combustivel[20];
+    char modelo[50];
+    char cor[20];
+    char chassi[20];
+    int ano;
+    char placa[10];
+} Veiculo;
+
+// Estrutura para representar um nó na lista
+typedef struct Nodo {
+    Veiculo veiculo;
+    struct Nodo *prox;
+} Nodo;
+
+// Função para inicializar uma lista vazia
+Nodo* inicializarLista() {
+    return NULL;
+}
+
+// Função para adicionar um novo veículo à lista
+Nodo* adicionarVeiculo(Nodo* lista, Veiculo novoVeiculo) {
+    Nodo *novoNodo = (Nodo*)malloc(sizeof(Nodo));
+    novoNodo->veiculo = novoVeiculo;
+    novoNodo->prox = lista;
+    return novoNodo;
+}
+
+// Função para listar proprietários de carros do ano de 2010 ou posterior e movidos a diesel
+void listarProprietariosDiesel2010(Nodo* lista) {
+    Nodo* atual = lista;
+
+    printf("\nProprietários de carros do ano de 2010 ou posterior e movidos a diesel:\n");
+    while (atual != NULL) {
+        if (atual->veiculo.ano >= 2010 && strcmp(atual->veiculo.combustivel, "diesel") == 0) {
+            printf("%s\n", atual->veiculo.proprietario);
+        }
+        atual = atual->prox;
+    }
+}
+
+// Função para listar placas que começam com J e terminam com 0, 2, 4 ou 7, junto com seus proprietários
+void listarPlacasJ(Nodo* lista) {
+    Nodo* atual = lista;
+
+    printf("\nPlacas que começam com J e terminam com 0, 2, 4 ou 7, junto com seus proprietários:\n");
+    while (atual != NULL) {
+        if (atual->veiculo.placa[0] == 'J' &&
+            (atual->veiculo.placa[6] == '0' || atual->veiculo.placa[6] == '2' ||
+             atual->veiculo.placa[6] == '4' || atual->veiculo.placa[6] == '7')) {
+            printf("Placa: %s, Proprietário: %s\n", atual->veiculo.placa, atual->veiculo.proprietario);
+        }
+        atual = atual->prox;
+    }
+}
+
+// Função para listar modelo e cor de veículos com placas que têm segunda letra vogal e soma dos valores numéricos é par
+void listarModeloCorPlacasVogalSomaPar(Nodo* lista) {
+    Nodo* atual = lista;
+
+    printf("\nModelo e cor de veículos com placas que têm segunda letra vogal e soma dos valores numéricos é par:\n");
+    while (atual != NULL) {
+        if (strchr("aeiouAEIOU", atual->veiculo.placa[1]) != NULL) {
+            int somaNumerosPlaca = 0;
+            for (int i = 3; i < 7; ++i) {
+                somaNumerosPlaca += atual->veiculo.placa[i] - '0';
+            }
+
+            if (somaNumerosPlaca % 2 == 0) {
+                printf("Modelo: %s, Cor: %s\n", atual->veiculo.modelo, atual->veiculo.cor);
+            }
+        }
+        atual = atual->prox;
+    }
+}
+
+// Função para permitir a troca de proprietário com base no número do chassi, apenas para carros com placas sem dígitos iguais a zero
+Nodo* trocarProprietario(Nodo* lista, char chassi[20], char novoProprietario[50]) {
+    Nodo *atual = lista;
+
+    while (atual != NULL) {
+        if (strcmp(atual->veiculo.chassi, chassi) == 0) {
+            // Verificar se a placa não possui nenhum dígito igual a zero
+            if (strchr(atual->veiculo.placa, '0') == NULL) {
+                strcpy(atual->veiculo.proprietario, novoProprietario);
+                printf("Troca de proprietário realizada com sucesso.\n");
+            } else {
+                printf("Troca de proprietário não permitida para carros com dígitos iguais a zero na placa.\n");
+            }
+            return lista;
+        }
+        atual = atual->prox;
+    }
+
+    printf("Carro com chassi %s não encontrado.\n", chassi);
+    return lista;
+}
+
+// Função principal
+int main() {
+    Nodo* listaVeiculos = inicializarLista();
+    int opcao;
+    char chassi[20], novoProprietario[50];
+
+    do {
+        printf("\n1 - Adicionar Veículo\n");
+        printf("2 - Listar Proprietários de Carros Diesel 2010 ou Posterior\n");
+        printf("3 - Listar Placas que começam com J e terminam com 0, 2, 4 ou 7\n");
+        printf("4 - Listar Modelo e Cor de Veículos com Placas que têm Segunda Letra Vogal e Soma dos Valores Numéricos é Par\n");
+        printf("5 - Trocar Proprietário\n");
+        printf("0 - Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                {
+                    Veiculo novoVeiculo;
+                    printf("Proprietário: ");
+                    scanf(" %[^\n]s", novoVeiculo.proprietario);
+                    printf("Combustível (álcool, diesel ou gasolina): ");
+                    scanf(" %[^\n]s", novoVeiculo.combustivel);
+                    printf("Modelo: ");
+                    scanf(" %[^\n]s", novoVeiculo.modelo);
+                    printf("Cor: ");
+                    scanf(" %[^\n]s", novoVeiculo.cor);
+                    printf("Número do chassi: ");
+                    scanf(" %[^\n]s", novoVeiculo.chassi);
+                    printf("Ano: ");
+                    scanf("%d", &novoVeiculo.ano);
+                    printf("Placa: ");
+                    scanf(" %[^\n]s", novoVeiculo.placa);
+
+                    listaVeiculos = adicionarVeiculo(listaVeiculos, novoVeiculo);
+                    break;
+                }
+            case 2:
+                listarProprietariosDiesel2010(listaVeiculos);
+                break;
+            case 3:
+                listarPlacasJ(listaVeiculos);
+                break;
+            case 4:
+                listarModeloCorPlacasVogalSomaPar(listaVeiculos);
+                break;
+            case 5:
+                printf("Digite o número do chassi: ");
+                scanf(" %[^\n]s", chassi);
+                printf("Digite o novo proprietário: ");
+                scanf(" %[^\n]s", novoProprietario);
+                listaVeiculos = trocarProprietario(listaVeiculos, chassi, novoProprietario);
+                break;
+            case 0:
+                printf("Saindo do programa.\n");
+                break;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+        }
+    } while (opcao != 0);
+
+    // Liberar a memória alocada para a lista
+    Nodo* atual = listaVeiculos;
+    while (atual != NULL) {
+        Nodo* proximo = atual->prox;
+        free(atual);
+        atual = proximo;
+    }
+
+    return 0;
+}
